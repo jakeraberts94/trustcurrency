@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TrustCurrency — Currency Trust & Exchange</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="logo-icon">₿</div>
+      <span class="logo-text">TrustCurrency</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+      <button class="nav-btn" data-tab="converter">Converter</button>
+      <button class="nav-btn" data-tab="watchlist">Watchlist</button>
+    </div>
+    <div class="nav-right">
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        <span>Live</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ===== DASHBOARD TAB ===== -->
+    <section id="tab-dashboard" class="tab active">
+      <div class="section-header">
+        <div>
+          <h1 class="page-title">Currency Dashboard</h1>
+          <p class="page-subtitle">Real-time rates & trust scores — base: <strong>USD</strong></p>
+        </div>
+        <div class="header-actions">
+          <select id="base-currency" class="select-input">
+            <option value="USD">🇺🇸 USD</option>
+            <option value="EUR">🇪🇺 EUR</option>
+            <option value="GBP">🇬🇧 GBP</option>
+            <option value="CAD">🇨🇦 CAD</option>
+            <option value="JPY">🇯🇵 JPY</option>
+          </select>
+          <button class="btn-primary" id="refresh-btn">⟳ Refresh</button>
+        </div>
+      </div>
+
+      <!-- STATS STRIP -->
+      <div class="stats-strip">
+        <div class="stat-card">
+          <span class="stat-label">Currencies Tracked</span>
+          <span class="stat-value" id="stat-total">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Avg Trust Score</span>
+          <span class="stat-value trust-green" id="stat-trust">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Most Stable</span>
+          <span class="stat-value" id="stat-stable">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Last Updated</span>
+          <span class="stat-value" id="stat-updated">—</span>
+        </div>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="search-bar-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" class="search-bar" placeholder="Search currencies…" />
+      </div>
+
+      <!-- CURRENCY GRID -->
+      <div class="currency-grid" id="currency-grid">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Fetching live rates…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CONVERTER TAB ===== -->
+    <section id="tab-converter" class="tab">
+      <div class="section-header">
+        <div>
+          <h1 class="page-title">Currency Converter</h1>
+          <p class="page-subtitle">Fast, accurate conversions using live rates</p>
+        </div>
+      </div>
+
+      <div class="converter-card">
+        <div class="converter-row">
+          <div class="conv-field">
+            <label>From</label>
+            <div class="conv-input-wrap">
+              <select id="conv-from" class="select-input lg"></select>
+              <input type="number" id="conv-amount" class="number-input" value="1" min="0" />
+            </div>
+          </div>
+          <button class="swap-btn" id="swap-btn" title="Swap currencies">⇄</button>
+          <div class="conv-field">
+            <label>To</label>
+            <div class="conv-input-wrap">
+              <select id="conv-to" class="select-input lg"></select>
+              <div class="conv-result" id="conv-result">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rate-line" id="rate-line">Enter an amount to convert</div>
+
+        <div class="trust-comparison" id="trust-comparison"></div>
+      </div>
+
+      <!-- QUICK AMOUNTS -->
+      <div class="quick-amounts">
+        <span class="quick-label">Quick amounts:</span>
+        <button class="quick-btn" data-val="1">1</button>
+        <button class="quick-btn" data-val="10">10</button>
+        <button class="quick-btn" data-val="100">100</button>
+        <button class="quick-btn" data-val="1000">1,000</button>
+        <button class="quick-btn" data-val="10000">10,000</button>
+      </div>
+
+      <!-- HISTORY TABLE -->
+      <div class="conv-history-wrap">
+        <h3 class="section-title">Conversion History</h3>
+        <div id="conv-history" class="conv-history-list">
+          <p class="empty-state">No conversions yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== WATCHLIST TAB ===== -->
+    <section id="tab-watchlist" class="tab">
+      <div class="section-header">
+        <div>
+          <h1 class="page-title">My Watchlist</h1>
+          <p class="page-subtitle">Track your favourite currencies in one place</p>
+        </div>
+        <div class="header-actions">
+          <select id="watch-add-select" class="select-input"></select>
+          <button class="btn-primary" id="watch-add-btn">+ Add</button>
+        </div>
+      </div>
+
+      <div id="watchlist-container" class="watchlist-grid">
+        <div class="empty-watch-state">
+          <div class="empty-icon">⭐</div>
+          <p>Your watchlist is empty.</p>
+          <p class="subtle">Add currencies using the dropdown above.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>TrustCurrency &copy; 2026 &mdash; Data sourced from <a href="https://www.frankfurter.app" target="_blank">Frankfurter API</a>. Trust scores are algorithmic estimates, not financial advice.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

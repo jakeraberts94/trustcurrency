@@ -3,16 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TrustCurrency — Currency Trust & Exchange</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>TrustCurrency — Currency Trust &amp; Exchange</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+CSSEOF
+
+cat /workspace/trustcurrency/style.css >> /workspace/trustcurrency/trustcurrency-bundle.html
+
+cat >> /workspace/trustcurrency/trustcurrency-bundle.html << 'HTMLEOF'
+  </style>
 </head>
 <body>
-  <!-- NAV -->
   <nav class="navbar">
     <div class="nav-brand">
-      <div class="logo-icon">₿</div>
+      <div class="logo-icon">&#8383;</div>
       <span class="logo-text">TrustCurrency</span>
     </div>
     <div class="nav-links">
@@ -28,64 +33,42 @@
     </div>
   </nav>
 
-  <!-- MAIN -->
   <main class="main-content">
 
-    <!-- ===== DASHBOARD TAB ===== -->
+    <!-- DASHBOARD -->
     <section id="tab-dashboard" class="tab active">
       <div class="section-header">
         <div>
           <h1 class="page-title">Currency Dashboard</h1>
-          <p class="page-subtitle">Real-time rates & trust scores — base: <strong>USD</strong></p>
+          <p class="page-subtitle">Real-time rates &amp; trust scores &mdash; base: <strong>USD</strong></p>
         </div>
         <div class="header-actions">
           <select id="base-currency" class="select-input">
-            <option value="USD">🇺🇸 USD</option>
-            <option value="EUR">🇪🇺 EUR</option>
-            <option value="GBP">🇬🇧 GBP</option>
-            <option value="CAD">🇨🇦 CAD</option>
-            <option value="JPY">🇯🇵 JPY</option>
+            <option value="USD">&#127482;&#127480; USD</option>
+            <option value="EUR">&#127466;&#127482; EUR</option>
+            <option value="GBP">&#127468;&#127463; GBP</option>
+            <option value="CAD">&#127464;&#127462; CAD</option>
+            <option value="JPY">&#127471;&#127477; JPY</option>
           </select>
-          <button class="btn-primary" id="refresh-btn">⟳ Refresh</button>
+          <button class="btn-primary" id="refresh-btn">&#8635; Refresh</button>
         </div>
       </div>
-
-      <!-- STATS STRIP -->
       <div class="stats-strip">
-        <div class="stat-card">
-          <span class="stat-label">Currencies Tracked</span>
-          <span class="stat-value" id="stat-total">—</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Avg Trust Score</span>
-          <span class="stat-value trust-green" id="stat-trust">—</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Most Stable</span>
-          <span class="stat-value" id="stat-stable">—</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Last Updated</span>
-          <span class="stat-value" id="stat-updated">—</span>
-        </div>
+        <div class="stat-card"><span class="stat-label">Currencies Tracked</span><span class="stat-value" id="stat-total">&mdash;</span></div>
+        <div class="stat-card"><span class="stat-label">Avg Trust Score</span><span class="stat-value trust-green" id="stat-trust">&mdash;</span></div>
+        <div class="stat-card"><span class="stat-label">Most Stable</span><span class="stat-value" id="stat-stable">&mdash;</span></div>
+        <div class="stat-card"><span class="stat-label">Last Updated</span><span class="stat-value" id="stat-updated">&mdash;</span></div>
       </div>
-
-      <!-- SEARCH -->
       <div class="search-bar-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" class="search-bar" placeholder="Search currencies…" />
+        <span class="search-icon">&#128269;</span>
+        <input type="text" id="search-input" class="search-bar" placeholder="Search currencies&hellip;" />
       </div>
-
-      <!-- CURRENCY GRID -->
       <div class="currency-grid" id="currency-grid">
-        <div class="loading-state">
-          <div class="spinner"></div>
-          <p>Fetching live rates…</p>
-        </div>
+        <div class="loading-state"><div class="spinner"></div><p>Fetching live rates&hellip;</p></div>
       </div>
     </section>
 
-    <!-- ===== CONVERTER TAB ===== -->
+    <!-- CONVERTER -->
     <section id="tab-converter" class="tab">
       <div class="section-header">
         <div>
@@ -93,7 +76,6 @@
           <p class="page-subtitle">Fast, accurate conversions using live rates</p>
         </div>
       </div>
-
       <div class="converter-card">
         <div class="converter-row">
           <div class="conv-field">
@@ -103,22 +85,18 @@
               <input type="number" id="conv-amount" class="number-input" value="1" min="0" />
             </div>
           </div>
-          <button class="swap-btn" id="swap-btn" title="Swap currencies">⇄</button>
+          <button class="swap-btn" id="swap-btn" title="Swap currencies">&#8644;</button>
           <div class="conv-field">
             <label>To</label>
             <div class="conv-input-wrap">
               <select id="conv-to" class="select-input lg"></select>
-              <div class="conv-result" id="conv-result">—</div>
+              <div class="conv-result" id="conv-result">&mdash;</div>
             </div>
           </div>
         </div>
-
         <div class="rate-line" id="rate-line">Enter an amount to convert</div>
-
         <div class="trust-comparison" id="trust-comparison"></div>
       </div>
-
-      <!-- QUICK AMOUNTS -->
       <div class="quick-amounts">
         <span class="quick-label">Quick amounts:</span>
         <button class="quick-btn" data-val="1">1</button>
@@ -127,17 +105,13 @@
         <button class="quick-btn" data-val="1000">1,000</button>
         <button class="quick-btn" data-val="10000">10,000</button>
       </div>
-
-      <!-- HISTORY TABLE -->
       <div class="conv-history-wrap">
         <h3 class="section-title">Conversion History</h3>
-        <div id="conv-history" class="conv-history-list">
-          <p class="empty-state">No conversions yet.</p>
-        </div>
+        <div id="conv-history" class="conv-history-list"><p class="empty-state">No conversions yet.</p></div>
       </div>
     </section>
 
-    <!-- ===== WATCHLIST TAB ===== -->
+    <!-- WATCHLIST -->
     <section id="tab-watchlist" class="tab">
       <div class="section-header">
         <div>
@@ -149,10 +123,9 @@
           <button class="btn-primary" id="watch-add-btn">+ Add</button>
         </div>
       </div>
-
       <div id="watchlist-container" class="watchlist-grid">
         <div class="empty-watch-state">
-          <div class="empty-icon">⭐</div>
+          <div class="empty-icon">&#11088;</div>
           <p>Your watchlist is empty.</p>
           <p class="subtle">Add currencies using the dropdown above.</p>
         </div>
@@ -161,11 +134,414 @@
 
   </main>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <p>TrustCurrency &copy; 2026 &mdash; Data sourced from <a href="https://www.frankfurter.app" target="_blank">Frankfurter API</a>. Trust scores are algorithmic estimates, not financial advice.</p>
   </footer>
 
-  <script src="app.js"></script>
+  <script>
+/* =========================================
+   TrustCurrency — Main Application Logic
+   ========================================= */
+
+// ---- Currency metadata ----
+const CURRENCY_META = {
+  USD: { name: 'US Dollar',        flag: '🇺🇸', trustBase: 97 },
+  EUR: { name: 'Euro',             flag: '🇪🇺', trustBase: 95 },
+  GBP: { name: 'British Pound',    flag: '🇬🇧', trustBase: 93 },
+  JPY: { name: 'Japanese Yen',     flag: '🇯🇵', trustBase: 90 },
+  CAD: { name: 'Canadian Dollar',  flag: '🇨🇦', trustBase: 91 },
+  AUD: { name: 'Australian Dollar',flag: '🇦🇺', trustBase: 89 },
+  CHF: { name: 'Swiss Franc',      flag: '🇨🇭', trustBase: 96 },
+  CNY: { name: 'Chinese Yuan',     flag: '🇨🇳', trustBase: 82 },
+  INR: { name: 'Indian Rupee',     flag: '🇮🇳', trustBase: 76 },
+  BRL: { name: 'Brazilian Real',   flag: '🇧🇷', trustBase: 65 },
+  MXN: { name: 'Mexican Peso',     flag: '🇲🇽', trustBase: 68 },
+  KRW: { name: 'South Korean Won', flag: '🇰🇷', trustBase: 84 },
+  SGD: { name: 'Singapore Dollar', flag: '🇸🇬', trustBase: 94 },
+  NOK: { name: 'Norwegian Krone',  flag: '🇳🇴', trustBase: 88 },
+  SEK: { name: 'Swedish Krona',    flag: '🇸🇪', trustBase: 87 },
+  DKK: { name: 'Danish Krone',     flag: '🇩🇰', trustBase: 88 },
+  NZD: { name: 'New Zealand Dollar',flag:'🇳🇿', trustBase: 87 },
+  ZAR: { name: 'South African Rand',flag:'🇿🇦', trustBase: 58 },
+  HKD: { name: 'Hong Kong Dollar', flag: '🇭🇰', trustBase: 85 },
+  TRY: { name: 'Turkish Lira',     flag: '🇹🇷', trustBase: 42 },
+  RUB: { name: 'Russian Ruble',    flag: '🇷🇺', trustBase: 35 },
+  SAR: { name: 'Saudi Riyal',      flag: '🇸🇦', trustBase: 80 },
+  AED: { name: 'UAE Dirham',       flag: '🇦🇪', trustBase: 83 },
+  PLN: { name: 'Polish Złoty',     flag: '🇵🇱', trustBase: 79 },
+  THB: { name: 'Thai Baht',        flag: '🇹🇭', trustBase: 74 },
+};
+
+// ---- State ----
+let rates     = {};       // { USD: 1.0, EUR: 0.92, ... } (always USD base internally)
+let baseCurrency = 'USD';
+let watchlist = JSON.parse(localStorage.getItem('tc_watchlist') || '[]');
+let convHistory  = JSON.parse(localStorage.getItem('tc_history')  || '[]');
+let lastUpdated  = null;
+
+// ---- Trust Score Helper ----
+function getTrustScore(code) {
+  const base = CURRENCY_META[code]?.trustBase ?? 60;
+  // Add minor random jitter (±3) for liveliness, seeded by time-of-day hour
+  const seed = new Date().getHours();
+  const jitter = ((code.charCodeAt(0) + seed) % 7) - 3;
+  return Math.min(99, Math.max(10, base + jitter));
+}
+
+function trustClass(score) {
+  if (score >= 80) return 'high';
+  if (score >= 55) return 'med';
+  return 'low';
+}
+
+// ---- API Fetch ----
+async function fetchRates(base = 'USD') {
+  const url = `https://api.frankfurter.app/latest?base=${base}`;
+  const res  = await fetch(url);
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  const data = await res.json();
+  return data; // { base, date, rates: { EUR: 0.92, ... } }
+}
+
+// ---- Convert relative to USD base ----
+function getRateVsBase(code) {
+  // rates are already relative to baseCurrency
+  if (code === baseCurrency) return 1;
+  return rates[code] ?? null;
+}
+
+// ---- Formatters ----
+function fmtRate(val, code) {
+  if (val === null) return '—';
+  const decimals = ['JPY','KRW','IDR'].includes(code) ? 2 : 4;
+  return val.toFixed(decimals);
+}
+
+function fmtAmount(val, code) {
+  if (val === null || isNaN(val)) return '—';
+  const decimals = ['JPY','KRW','IDR'].includes(code) ? 0 : 2;
+  return new Intl.NumberFormat('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(val);
+}
+
+function fmtTime(date) {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// ---- Render Dashboard ----
+function renderDashboard() {
+  const codes  = Object.keys(CURRENCY_META).filter(c => c !== baseCurrency);
+  const search = document.getElementById('search-input')?.value?.toLowerCase() ?? '';
+
+  const filtered = codes.filter(c => {
+    const meta = CURRENCY_META[c];
+    return (
+      c.toLowerCase().includes(search) ||
+      meta.name.toLowerCase().includes(search) ||
+      meta.flag.includes(search)
+    );
+  });
+
+  // Stats
+  document.getElementById('stat-total').textContent   = Object.keys(CURRENCY_META).length;
+  const scores = Object.keys(CURRENCY_META).map(getTrustScore);
+  const avgTrust = Math.round(scores.reduce((a,b)=>a+b,0) / scores.length);
+  document.getElementById('stat-trust').textContent   = avgTrust + '%';
+
+  const stable = Object.keys(CURRENCY_META).reduce((a,b) => getTrustScore(a) >= getTrustScore(b) ? a : b);
+  document.getElementById('stat-stable').textContent  = CURRENCY_META[stable].flag + ' ' + stable;
+  document.getElementById('stat-updated').textContent = lastUpdated ? fmtTime(lastUpdated) : '—';
+
+  // Grid
+  const grid = document.getElementById('currency-grid');
+  grid.innerHTML = '';
+
+  if (!filtered.length) {
+    grid.innerHTML = '<p style="color:var(--muted);padding:20px;grid-column:1/-1">No currencies match your search.</p>';
+    return;
+  }
+
+  filtered.forEach(code => {
+    const meta  = CURRENCY_META[code];
+    const rate  = getRateVsBase(code);
+    const trust = getTrustScore(code);
+    const tClass = trustClass(trust);
+    const inWatch = watchlist.includes(code);
+
+    const card = document.createElement('div');
+    card.className = 'currency-card';
+    card.innerHTML = `
+      <div class="card-top">
+        <span class="currency-flag">${meta.flag}</span>
+        <button class="watch-star ${inWatch ? 'active' : ''}" data-code="${code}" title="${inWatch ? 'Remove from watchlist' : 'Add to watchlist'}">
+          ${inWatch ? '★' : '☆'}
+        </button>
+      </div>
+      <div class="currency-code">${code}</div>
+      <div class="currency-name">${meta.name}</div>
+      <div class="currency-rate">
+        ${fmtRate(rate, code)} <span>${code}/${baseCurrency}</span>
+      </div>
+      <div class="trust-bar-wrap">
+        <div class="trust-label-row">
+          <span>Trust Score</span>
+          <span class="trust-score-num ${tClass}">${trust}%</span>
+        </div>
+        <div class="trust-bar-bg">
+          <div class="trust-bar-fill ${tClass}" style="width:${trust}%"></div>
+        </div>
+      </div>
+    `;
+
+    card.querySelector('.watch-star').addEventListener('click', e => {
+      e.stopPropagation();
+      toggleWatch(code);
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+// ---- Render Converter ----
+function populateConverterSelects() {
+  const codes = Object.keys(CURRENCY_META);
+  ['conv-from','conv-to'].forEach((id, idx) => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = codes.map(c =>
+      `<option value="${c}" ${(idx===0&&c==='USD')||(idx===1&&c==='EUR') ? 'selected':''}>
+        ${CURRENCY_META[c].flag} ${c} — ${CURRENCY_META[c].name}
+      </option>`
+    ).join('');
+  });
+}
+
+function doConvert() {
+  const from   = document.getElementById('conv-from').value;
+  const to     = document.getElementById('conv-to').value;
+  const amount = parseFloat(document.getElementById('conv-amount').value);
+  if (!from || !to || isNaN(amount)) return;
+
+  // Get cross-rate: from→baseCurrency→to
+  const rateFrom = from === baseCurrency ? 1 : (rates[from] ?? null);
+  const rateTo   = to   === baseCurrency ? 1 : (rates[to]   ?? null);
+
+  if (rateFrom === null || rateTo === null) {
+    document.getElementById('conv-result').textContent = 'Rate unavailable';
+    return;
+  }
+
+  // amount in base = amount / rateFrom ... wait — rates[X] = X per baseCurrency
+  // So to convert FROM→TO: result = amount * (rateTo / rateFrom)
+  const result = amount * (rateTo / rateFrom);
+
+  document.getElementById('conv-result').textContent = `${fmtAmount(result, to)} ${to}`;
+  document.getElementById('rate-line').textContent =
+    `1 ${from} = ${fmtRate(rateTo / rateFrom, to)} ${to}   |   1 ${to} = ${fmtRate(rateFrom / rateTo, from)} ${from}`;
+
+  // Trust comparison
+  const trustFrom = getTrustScore(from);
+  const trustTo   = getTrustScore(to);
+  document.getElementById('trust-comparison').innerHTML = `
+    <div class="trust-chip">
+      <span class="chip-label">${CURRENCY_META[from].flag} ${from} Trust</span>
+      <span class="chip-val trust-score-num ${trustClass(trustFrom)}">${trustFrom}%</span>
+    </div>
+    <div class="trust-chip">
+      <span class="chip-label">${CURRENCY_META[to].flag} ${to} Trust</span>
+      <span class="chip-val trust-score-num ${trustClass(trustTo)}">${trustTo}%</span>
+    </div>
+  `;
+
+  // History
+  const entry = {
+    from, to, amount,
+    result: fmtAmount(result, to),
+    time: new Date().toISOString()
+  };
+  convHistory.unshift(entry);
+  if (convHistory.length > 20) convHistory.pop();
+  localStorage.setItem('tc_history', JSON.stringify(convHistory));
+  renderHistory();
+}
+
+function renderHistory() {
+  const container = document.getElementById('conv-history');
+  if (!convHistory.length) {
+    container.innerHTML = '<p class="empty-state">No conversions yet.</p>';
+    return;
+  }
+  container.innerHTML = convHistory.slice(0,10).map(h => `
+    <div class="history-item">
+      <div class="history-left">
+        <div class="history-expr">${fmtAmount(h.amount, h.from)} ${h.from} → ${h.to}</div>
+        <div class="history-time">${new Date(h.time).toLocaleString()}</div>
+      </div>
+      <div class="history-result">${h.result} ${h.to}</div>
+    </div>
+  `).join('');
+}
+
+// ---- Watchlist ----
+function toggleWatch(code) {
+  if (watchlist.includes(code)) {
+    watchlist = watchlist.filter(c => c !== code);
+  } else {
+    watchlist.push(code);
+  }
+  localStorage.setItem('tc_watchlist', JSON.stringify(watchlist));
+  renderDashboard();
+  renderWatchlist();
+}
+
+function populateWatchAddSelect() {
+  const sel = document.getElementById('watch-add-select');
+  sel.innerHTML = Object.keys(CURRENCY_META)
+    .filter(c => !watchlist.includes(c))
+    .map(c => `<option value="${c}">${CURRENCY_META[c].flag} ${c} — ${CURRENCY_META[c].name}</option>`)
+    .join('');
+}
+
+function renderWatchlist() {
+  const container = document.getElementById('watchlist-container');
+  populateWatchAddSelect();
+
+  if (!watchlist.length) {
+    container.innerHTML = `
+      <div class="empty-watch-state">
+        <div class="empty-icon">⭐</div>
+        <p>Your watchlist is empty.</p>
+        <p class="subtle">Add currencies using the dropdown above.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = watchlist.map(code => {
+    const meta  = CURRENCY_META[code] ?? { name: code, flag: '🏳' };
+    const rate  = getRateVsBase(code);
+    const trust = getTrustScore(code);
+    const tClass = trustClass(trust);
+    return `
+      <div class="watch-card">
+        <div class="watch-card-top">
+          <div>
+            <div style="font-size:28px">${meta.flag}</div>
+            <div style="font-size:18px;font-weight:700;margin-top:4px">${code}</div>
+            <div style="font-size:13px;color:var(--muted)">${meta.name}</div>
+          </div>
+          <button class="remove-btn" data-code="${code}" title="Remove">✕</button>
+        </div>
+        <div class="watch-rate">${fmtRate(rate, code)} <span>${code}/${baseCurrency}</span></div>
+        <div class="watch-meta">
+          <span class="trust-badge ${tClass}">Trust ${trust}%</span>
+          <span>Updated ${lastUpdated ? fmtTime(lastUpdated) : '—'}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  container.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => toggleWatch(btn.dataset.code));
+  });
+}
+
+// ---- Tab switching ----
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${name}`)?.classList.add('active');
+  document.querySelector(`.nav-btn[data-tab="${name}"]`)?.classList.add('active');
+}
+
+// ---- Base currency change ----
+async function changeBase(newBase) {
+  baseCurrency = newBase;
+  document.getElementById('currency-grid').innerHTML = `
+    <div class="loading-state"><div class="spinner"></div><p>Fetching live rates…</p></div>`;
+  try {
+    const data = await fetchRates(newBase);
+    rates = data.rates;
+    lastUpdated = new Date();
+  } catch(e) {
+    console.error(e);
+  }
+  renderDashboard();
+  renderWatchlist();
+}
+
+// ---- Init ----
+async function init() {
+  // Tab buttons
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  // Base currency
+  document.getElementById('base-currency').addEventListener('change', e => {
+    changeBase(e.target.value);
+  });
+
+  // Refresh
+  document.getElementById('refresh-btn').addEventListener('click', () => {
+    changeBase(baseCurrency);
+  });
+
+  // Search
+  document.getElementById('search-input').addEventListener('input', renderDashboard);
+
+  // Converter
+  populateConverterSelects();
+  renderHistory();
+
+  ['conv-from','conv-to','conv-amount'].forEach(id => {
+    document.getElementById(id).addEventListener('input', doConvert);
+    document.getElementById(id).addEventListener('change', doConvert);
+  });
+
+  document.getElementById('swap-btn').addEventListener('click', () => {
+    const from = document.getElementById('conv-from');
+    const to   = document.getElementById('conv-to');
+    [from.value, to.value] = [to.value, from.value];
+    doConvert();
+  });
+
+  document.querySelectorAll('.quick-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('conv-amount').value = btn.dataset.val;
+      doConvert();
+    });
+  });
+
+  // Watchlist add
+  document.getElementById('watch-add-btn').addEventListener('click', () => {
+    const code = document.getElementById('watch-add-select').value;
+    if (code && !watchlist.includes(code)) {
+      watchlist.push(code);
+      localStorage.setItem('tc_watchlist', JSON.stringify(watchlist));
+      renderDashboard();
+      renderWatchlist();
+    }
+  });
+
+  // Initial data load
+  try {
+    const data = await fetchRates('USD');
+    rates = data.rates;
+    lastUpdated = new Date();
+  } catch(e) {
+    console.error('Failed to fetch rates:', e);
+    // Show fallback message
+    document.getElementById('currency-grid').innerHTML =
+      `<p style="color:var(--muted);padding:20px;grid-column:1/-1">⚠️ Could not load live rates. Check your internet connection and try refreshing.</p>`;
+    return;
+  }
+
+  renderDashboard();
+  renderWatchlist();
+  doConvert();
+
+  // Auto-refresh every 60 seconds
+  setInterval(() => changeBase(baseCurrency), 60_000);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
 </html>

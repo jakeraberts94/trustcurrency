@@ -170,10 +170,37 @@ const CURRENCY_META = {
 // ---- State ----
 let rates = {}; // Currency units per baseCurrency; replaced atomically with the base.
 let baseCurrency = 'USD';
-let watchlist = JSON.parse(localStorage.getItem('tc_watchlist') || '[]');
-let convHistory  = JSON.parse(localStorage.getItem('tc_history')  || '[]');
+let watchlist = [...new Set(readSavedList('tc_watchlist').filter(isCurrency))];
+let convHistory = readSavedList('tc_history').filter(entry =>
+  entry && isCurrency(entry.from) && isCurrency(entry.to) &&
+  Number.isFinite(entry.amount) && entry.amount >= 0 &&
+  typeof entry.result === 'string' &&
+  typeof entry.time === 'string' && Number.isFinite(Date.parse(entry.time))
+).slice(0, 20);
 let lastUpdated  = null;
 let ratesRequest = 0;
+
+// ---- Optional browser persistence ----
+function isCurrency(code) {
+  return typeof code === 'string' && Object.hasOwn(CURRENCY_META, code);
+}
+
+function readSavedList(key) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveList(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Storage may be blocked or full. Keep the current session usable.
+  }
+}
 
 // ---- Trust Score Helper ----
 function getTrustScore(code) {
@@ -363,7 +390,7 @@ function doConvert(recordHistory = true) {
   };
   convHistory.unshift(entry);
   if (convHistory.length > 20) convHistory.pop();
-  localStorage.setItem('tc_history', JSON.stringify(convHistory));
+  saveList('tc_history', convHistory);
   renderHistory();
 }
 
@@ -373,15 +400,25 @@ function renderHistory() {
     container.innerHTML = '<p class="empty-state">No conversions yet.</p>';
     return;
   }
-  container.innerHTML = convHistory.slice(0,10).map(h => `
-    <div class="history-item">
-      <div class="history-left">
-        <div class="history-expr">${fmtAmount(h.amount, h.from)} ${h.from} → ${h.to}</div>
-        <div class="history-time">${new Date(h.time).toLocaleString()}</div>
-      </div>
-      <div class="history-result">${h.result} ${h.to}</div>
-    </div>
-  `).join('');
+  container.replaceChildren();
+  convHistory.slice(0, 10).forEach(h => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const left = document.createElement('div');
+    left.className = 'history-left';
+    const expression = document.createElement('div');
+    expression.className = 'history-expr';
+    expression.textContent = `${fmtAmount(h.amount, h.from)} ${h.from} → ${h.to}`;
+    const time = document.createElement('div');
+    time.className = 'history-time';
+    time.textContent = new Date(h.time).toLocaleString();
+    const result = document.createElement('div');
+    result.className = 'history-result';
+    result.textContent = `${h.result} ${h.to}`;
+    left.append(expression, time);
+    item.append(left, result);
+    container.appendChild(item);
+  });
 }
 
 // ---- Watchlist ----
@@ -391,7 +428,7 @@ function toggleWatch(code) {
   } else {
     watchlist.push(code);
   }
-  localStorage.setItem('tc_watchlist', JSON.stringify(watchlist));
+  saveList('tc_watchlist', watchlist);
   renderDashboard();
   renderWatchlist();
 }
@@ -533,7 +570,7 @@ async function init() {
     const code = document.getElementById('watch-add-select').value;
     if (code && !watchlist.includes(code)) {
       watchlist.push(code);
-      localStorage.setItem('tc_watchlist', JSON.stringify(watchlist));
+      saveList('tc_watchlist', watchlist);
       renderDashboard();
       renderWatchlist();
     }

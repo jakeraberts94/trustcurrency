@@ -6,13 +6,7 @@
   <title>TrustCurrency — Currency Trust &amp; Exchange</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-CSSEOF
-
-cat /workspace/trustcurrency/style.css >> /workspace/trustcurrency/trustcurrency-bundle.html
-
-cat >> /workspace/trustcurrency/trustcurrency-bundle.html << 'HTMLEOF'
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <nav class="navbar">
@@ -28,7 +22,7 @@ cat >> /workspace/trustcurrency/trustcurrency-bundle.html << 'HTMLEOF'
     <div class="nav-right">
       <div class="live-badge">
         <span class="live-dot"></span>
-        <span>Live</span>
+        <span>Exchange rates</span>
       </div>
     </div>
   </nav>
@@ -40,10 +34,10 @@ cat >> /workspace/trustcurrency/trustcurrency-bundle.html << 'HTMLEOF'
       <div class="section-header">
         <div>
           <h1 class="page-title">Currency Dashboard</h1>
-          <p class="page-subtitle">Real-time rates &amp; trust scores &mdash; base: <strong>USD</strong></p>
+          <p class="page-subtitle">Exchange rates &amp; trust scores &mdash; base: <strong id="base-label">USD</strong></p>
         </div>
         <div class="header-actions">
-          <select id="base-currency" class="select-input">
+          <select id="base-currency" aria-label="Base currency" class="select-input">
             <option value="USD">&#127482;&#127480; USD</option>
             <option value="EUR">&#127466;&#127482; EUR</option>
             <option value="GBP">&#127468;&#127463; GBP</option>
@@ -53,6 +47,7 @@ cat >> /workspace/trustcurrency/trustcurrency-bundle.html << 'HTMLEOF'
           <button class="btn-primary" id="refresh-btn">&#8635; Refresh</button>
         </div>
       </div>
+      <p id="rates-status" class="rates-status" role="status" aria-live="polite">Loading exchange rates…</p>
       <div class="stats-strip">
         <div class="stat-card"><span class="stat-label">Currencies Tracked</span><span class="stat-value" id="stat-total">&mdash;</span></div>
         <div class="stat-card"><span class="stat-label">Avg Trust Score</span><span class="stat-value trust-green" id="stat-trust">&mdash;</span></div>
@@ -61,7 +56,7 @@ cat >> /workspace/trustcurrency/trustcurrency-bundle.html << 'HTMLEOF'
       </div>
       <div class="search-bar-wrap">
         <span class="search-icon">&#128269;</span>
-        <input type="text" id="search-input" class="search-bar" placeholder="Search currencies&hellip;" />
+        <input type="text" id="search-input" aria-label="Search currencies" class="search-bar" placeholder="Search currencies&hellip;" />
       </div>
       <div class="currency-grid" id="currency-grid">
         <div class="loading-state"><div class="spinner"></div><p>Fetching live rates&hellip;</p></div>
@@ -73,24 +68,24 @@ cat >> /workspace/trustcurrency/trustcurrency-bundle.html << 'HTMLEOF'
       <div class="section-header">
         <div>
           <h1 class="page-title">Currency Converter</h1>
-          <p class="page-subtitle">Fast, accurate conversions using live rates</p>
+          <p class="page-subtitle">Convert using the latest available exchange rates</p>
         </div>
       </div>
       <div class="converter-card">
         <div class="converter-row">
           <div class="conv-field">
-            <label>From</label>
+            <label for="conv-from">From</label>
             <div class="conv-input-wrap">
               <select id="conv-from" class="select-input lg"></select>
-              <input type="number" id="conv-amount" class="number-input" value="1" min="0" />
+              <input type="number" id="conv-amount" class="number-input" value="1" min="0" step="any" aria-label="Amount to convert" />
             </div>
           </div>
           <button class="swap-btn" id="swap-btn" title="Swap currencies">&#8644;</button>
           <div class="conv-field">
-            <label>To</label>
+            <label for="conv-to">To</label>
             <div class="conv-input-wrap">
               <select id="conv-to" class="select-input lg"></select>
-              <div class="conv-result" id="conv-result">&mdash;</div>
+              <div class="conv-result" id="conv-result" aria-live="polite">&mdash;</div>
             </div>
           </div>
         </div>
@@ -119,7 +114,7 @@ cat >> /workspace/trustcurrency/trustcurrency-bundle.html << 'HTMLEOF'
           <p class="page-subtitle">Track your favourite currencies in one place</p>
         </div>
         <div class="header-actions">
-          <select id="watch-add-select" class="select-input"></select>
+          <select id="watch-add-select" aria-label="Currency to watch" class="select-input"></select>
           <button class="btn-primary" id="watch-add-btn">+ Add</button>
         </div>
       </div>
@@ -173,11 +168,39 @@ const CURRENCY_META = {
 };
 
 // ---- State ----
-let rates     = {};       // { USD: 1.0, EUR: 0.92, ... } (always USD base internally)
+let rates = {}; // Currency units per baseCurrency; replaced atomically with the base.
 let baseCurrency = 'USD';
-let watchlist = JSON.parse(localStorage.getItem('tc_watchlist') || '[]');
-let convHistory  = JSON.parse(localStorage.getItem('tc_history')  || '[]');
+let watchlist = [...new Set(readSavedList('tc_watchlist').filter(isCurrency))];
+let convHistory = readSavedList('tc_history').filter(entry =>
+  entry && isCurrency(entry.from) && isCurrency(entry.to) &&
+  Number.isFinite(entry.amount) && entry.amount >= 0 &&
+  typeof entry.result === 'string' &&
+  typeof entry.time === 'string' && Number.isFinite(Date.parse(entry.time))
+).slice(0, 20);
 let lastUpdated  = null;
+let ratesRequest = 0;
+
+// ---- Optional browser persistence ----
+function isCurrency(code) {
+  return typeof code === 'string' && Object.hasOwn(CURRENCY_META, code);
+}
+
+function readSavedList(key) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveList(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Storage may be blocked or full. Keep the current session usable.
+  }
+}
 
 // ---- Trust Score Helper ----
 function getTrustScore(code) {
@@ -203,7 +226,7 @@ async function fetchRates(base = 'USD') {
   return data; // { base, date, rates: { EUR: 0.92, ... } }
 }
 
-// ---- Convert relative to USD base ----
+// ---- Rates relative to the current base ----
 function getRateVsBase(code) {
   // rates are already relative to baseCurrency
   if (code === baseCurrency) return 1;
@@ -314,23 +337,30 @@ function populateConverterSelects() {
   });
 }
 
-function doConvert() {
+function doConvert(recordHistory = true) {
   const from   = document.getElementById('conv-from').value;
   const to     = document.getElementById('conv-to').value;
   const amount = parseFloat(document.getElementById('conv-amount').value);
-  if (!from || !to || isNaN(amount)) return;
+  const clearConversion = message => {
+    document.getElementById('conv-result').textContent = message;
+    document.getElementById('rate-line').textContent = 'Enter a non-negative amount with available rates';
+    document.getElementById('trust-comparison').innerHTML = '';
+  };
+  if (!from || !to || !Number.isFinite(amount) || amount < 0) {
+    clearConversion('—');
+    return;
+  }
 
   // Get cross-rate: from→baseCurrency→to
   const rateFrom = from === baseCurrency ? 1 : (rates[from] ?? null);
   const rateTo   = to   === baseCurrency ? 1 : (rates[to]   ?? null);
 
   if (rateFrom === null || rateTo === null) {
-    document.getElementById('conv-result').textContent = 'Rate unavailable';
+    clearConversion('Rate unavailable');
     return;
   }
 
-  // amount in base = amount / rateFrom ... wait — rates[X] = X per baseCurrency
-  // So to convert FROM→TO: result = amount * (rateTo / rateFrom)
+  // rates[X] = X per baseCurrency, so FROM→TO uses rateTo / rateFrom.
   const result = amount * (rateTo / rateFrom);
 
   document.getElementById('conv-result').textContent = `${fmtAmount(result, to)} ${to}`;
@@ -351,7 +381,8 @@ function doConvert() {
     </div>
   `;
 
-  // History
+  // Refreshes should update the result without adding duplicate history.
+  if (!recordHistory) return;
   const entry = {
     from, to, amount,
     result: fmtAmount(result, to),
@@ -359,7 +390,7 @@ function doConvert() {
   };
   convHistory.unshift(entry);
   if (convHistory.length > 20) convHistory.pop();
-  localStorage.setItem('tc_history', JSON.stringify(convHistory));
+  saveList('tc_history', convHistory);
   renderHistory();
 }
 
@@ -369,15 +400,25 @@ function renderHistory() {
     container.innerHTML = '<p class="empty-state">No conversions yet.</p>';
     return;
   }
-  container.innerHTML = convHistory.slice(0,10).map(h => `
-    <div class="history-item">
-      <div class="history-left">
-        <div class="history-expr">${fmtAmount(h.amount, h.from)} ${h.from} → ${h.to}</div>
-        <div class="history-time">${new Date(h.time).toLocaleString()}</div>
-      </div>
-      <div class="history-result">${h.result} ${h.to}</div>
-    </div>
-  `).join('');
+  container.replaceChildren();
+  convHistory.slice(0, 10).forEach(h => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const left = document.createElement('div');
+    left.className = 'history-left';
+    const expression = document.createElement('div');
+    expression.className = 'history-expr';
+    expression.textContent = `${fmtAmount(h.amount, h.from)} ${h.from} → ${h.to}`;
+    const time = document.createElement('div');
+    time.className = 'history-time';
+    time.textContent = new Date(h.time).toLocaleString();
+    const result = document.createElement('div');
+    result.className = 'history-result';
+    result.textContent = `${h.result} ${h.to}`;
+    left.append(expression, time);
+    item.append(left, result);
+    container.appendChild(item);
+  });
 }
 
 // ---- Watchlist ----
@@ -387,7 +428,7 @@ function toggleWatch(code) {
   } else {
     watchlist.push(code);
   }
-  localStorage.setItem('tc_watchlist', JSON.stringify(watchlist));
+  saveList('tc_watchlist', watchlist);
   renderDashboard();
   renderWatchlist();
 }
@@ -452,18 +493,34 @@ function switchTab(name) {
 
 // ---- Base currency change ----
 async function changeBase(newBase) {
-  baseCurrency = newBase;
-  document.getElementById('currency-grid').innerHTML = `
-    <div class="loading-state"><div class="spinner"></div><p>Fetching live rates…</p></div>`;
+  const request = ++ratesRequest;
+  const status = document.getElementById('rates-status');
+  status.classList.remove('error');
+  status.textContent = `Loading ${newBase} exchange rates…`;
   try {
     const data = await fetchRates(newBase);
+    if (request !== ratesRequest) return;
+    if (!data.rates || !Object.keys(data.rates).length ||
+        !Object.values(data.rates).every(rate => Number.isFinite(rate) && rate > 0)) {
+      throw new Error('Invalid exchange rates');
+    }
     rates = data.rates;
+    baseCurrency = newBase;
     lastUpdated = new Date();
+    status.textContent = `Rates loaded at ${fmtTime(lastUpdated)}. Unavailable currencies show —.`;
   } catch(e) {
-    console.error(e);
+    if (request !== ratesRequest) return;
+    console.error('Failed to fetch rates:', e);
+    status.classList.add('error');
+    status.textContent = lastUpdated
+      ? `Could not refresh rates. Showing previously loaded ${baseCurrency} rates. Try Refresh again.`
+      : 'Could not load exchange rates. Check your connection and try Refresh again.';
   }
+  document.getElementById('base-currency').value = baseCurrency;
+  document.getElementById('base-label').textContent = baseCurrency;
   renderDashboard();
   renderWatchlist();
+  doConvert(false);
 }
 
 // ---- Init ----
@@ -491,8 +548,7 @@ async function init() {
   renderHistory();
 
   ['conv-from','conv-to','conv-amount'].forEach(id => {
-    document.getElementById(id).addEventListener('input', doConvert);
-    document.getElementById(id).addEventListener('change', doConvert);
+    document.getElementById(id).addEventListener('input', () => doConvert());
   });
 
   document.getElementById('swap-btn').addEventListener('click', () => {
@@ -514,28 +570,15 @@ async function init() {
     const code = document.getElementById('watch-add-select').value;
     if (code && !watchlist.includes(code)) {
       watchlist.push(code);
-      localStorage.setItem('tc_watchlist', JSON.stringify(watchlist));
+      saveList('tc_watchlist', watchlist);
       renderDashboard();
       renderWatchlist();
     }
   });
 
-  // Initial data load
-  try {
-    const data = await fetchRates('USD');
-    rates = data.rates;
-    lastUpdated = new Date();
-  } catch(e) {
-    console.error('Failed to fetch rates:', e);
-    // Show fallback message
-    document.getElementById('currency-grid').innerHTML =
-      `<p style="color:var(--muted);padding:20px;grid-column:1/-1">⚠️ Could not load live rates. Check your internet connection and try refreshing.</p>`;
-    return;
-  }
-
-  renderDashboard();
+  // Render saved currencies even when the rates service is unavailable.
   renderWatchlist();
-  doConvert();
+  await changeBase('USD');
 
   // Auto-refresh every 60 seconds
   setInterval(() => changeBase(baseCurrency), 60_000);
